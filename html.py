@@ -120,7 +120,7 @@ const @@V11@@=m=>{
   if(c)c.innerHTML='<h2 style="margin:0 0 10px;color:#ff5c8a;font-size:15px;letter-spacing:2px">X-VALEZ</h2><p style="margin:0;color:#bba9ca;font-size:13px;line-height:1.6">'+m+'</p>';
 };
 let ok=false;
-const timer=setTimeout(()=>{if(!ok)@@V11@@("Waktu habis. Browser lambat atau Web Crypto tidak didukung.");},20000);
+const timer=setTimeout(()=>{if(!ok)@@V11@@("Waktu habis. Browser lambat atau Web Crypto tidak didukung.");},30000);
 try{
   const enc=new TextEncoder();
   const aes=atob("QUVTLUdDTQ==");
@@ -128,16 +128,23 @@ try{
   const raw=await crypto.subtle.importKey("raw",@@V09@@(@@V10@@(@@V03@@,@@V04@@)),pbk,false,["deriveKey"]);
   const key=await crypto.subtle.deriveKey({name:pbk,salt:@@V09@@(@@V10@@(@@V05@@,@@V06@@)),iterations:120000,hash:"SHA-256"},raw,{name:aes,length:256},false,["decrypt"]);
   const pt=await crypto.subtle.decrypt({name:aes,iv:@@V09@@(@@V10@@(@@V07@@,@@V08@@)),additionalData:enc.encode(atob("VkFMRVotSFRNTC12MQ=="))},key,@@V09@@(@@V10@@(@@V01@@,@@V02@@)));
-  ok=true;clearTimeout(timer);
+  ok=true;
+  clearTimeout(timer);
   const html=new TextDecoder().decode(pt);
-  const parsed=new DOMParser().parseFromString(html,"text/html");
-  document.documentElement.replaceWith(document.adoptNode(parsed.documentElement));
-  [...document.querySelectorAll("script")].forEach(old=>{
-    const s=document.createElement("script");
-    for(const a of old.attributes)s.setAttribute(a.name,a.value);
-    s.textContent=old.textContent;
-    old.replaceWith(s);
-  });
+  const tm=html.match(/<title[^>]*>([\s\S]*?)<\/title>/i);
+  if(tm){const t=tm[1].replace(/<[^>]+>/g,"").trim();if(t)document.title=t;}
+  document.documentElement.style.cssText="margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#08040f";
+  document.body.style.cssText="margin:0;padding:0;width:100%;height:100%;overflow:hidden;background:#08040f";
+  const frame=document.createElement("iframe");
+  frame.setAttribute("style","position:fixed;inset:0;width:100vw;height:100vh;border:0;margin:0;padding:0;display:block;background:#08040f;z-index:2147483647");
+  frame.onload=()=>{const m=document.querySelector("main");if(m)m.remove();};
+  if(html.length<4000000){
+    frame.srcdoc=html;
+  }else{
+    const blob=new Blob([html],{type:"text/html"});
+    frame.src=URL.createObjectURL(blob);
+  }
+  document.body.appendChild(frame);
 }catch(e){
   clearTimeout(timer);
   @@V11@@("Gagal membuka halaman. File rusak, sudah diubah, atau Web Crypto tidak didukung.");
@@ -181,9 +188,8 @@ def make_html(ciphertext, passphrase, salt, nonce):
 <title>Memuat…</title>
 <style>
 *{box-sizing:border-box}
+html,body{margin:0;padding:0;width:100%;height:100%;background:#08040f;overflow:hidden}
 body{
-  margin:0;
-  min-height:100vh;
   display:grid;
   place-items:center;
   padding:22px;
@@ -213,6 +219,7 @@ main{
 @keyframes spin{to{transform:rotate(1turn)}}
 .status{display:block;color:#c77dff;font-size:13px;letter-spacing:4px}
 .sub{margin:10px 0 0;color:#bba9ca;font-size:12.5px;line-height:1.6}
+noscript{color:#bba9ca;font-size:13px}
 </style>
 </head>
 <body>
